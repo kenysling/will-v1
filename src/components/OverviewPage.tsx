@@ -68,7 +68,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 onClick={() => onNavigate("builder")}
                 className="animate-cta-flash inline-flex items-center gap-2 px-6 py-3.5 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-md shadow-md shadow-[#1D4ED8]/25 transition-colors duration-150 whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
               >
-                Build Your Will Now With One Click
+                Build your will NOW for FREE!
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
