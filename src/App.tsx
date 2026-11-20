@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { variant, track, consent, setConsent, loadClarity, type Variant } from "./pt";
 import { AssetVault } from "./components/AssetVault";
 import { EstateCounsel } from "./components/EstateCounsel";
 import { MembershipPage } from "./components/MembershipPage";
@@ -95,8 +96,20 @@ export default function App() {
     cycle: "annual",
   });
 
+  const [abVariant] = useState<Variant>(() => variant());
+  const [consentChoice, setConsentChoice] = useState<"granted" | "denied" | null>(() =>
+    consent()
+  );
+
   // Subtle status toast on plan change
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (consent() === "granted") {
+      loadClarity();
+    }
+    track("screen_view");
+  }, []);
 
   useEffect(() => {
     try {
@@ -268,15 +281,28 @@ export default function App() {
     setVaultAssets((prev) => prev.filter((a) => a.id !== id));
   };
 
+  const navigateTo = (view: AppView) => {
+    if (view === "builder" && activeView !== "builder") {
+      track("goal_complete");
+    }
+    setActiveView(view);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleMainCtaClick = () => {
+    track("cta_click");
+    navigateTo("builder");
+  };
+
   const handlePrimaryHeaderAction = () => {
     if (activeView === "overview") {
-      setActiveView("builder");
+      navigateTo("builder");
       return;
     }
     if (subscription.tierId === "essential") {
       openCheckoutModal("family_guard", "annual");
     } else {
-      setActiveView("membership");
+      navigateTo("membership");
     }
   };
 
@@ -287,18 +313,14 @@ export default function App() {
       includeMirrorWill: plan.limits.includesMirrorWill,
       enableTestamentaryTrust: plan.limits.includesTestamentaryTrust,
     });
-    setActiveView("builder");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    navigateTo("builder");
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F9FA] text-[#111827]">
+    <div className={`min-h-screen flex flex-col bg-[#F8F9FA] text-[#111827] ${consentChoice === null ? "pb-24" : ""}`}>
       <TopBar
         activeView={activeView}
-        onNavigate={(view) => {
-          setActiveView(view);
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
+        onNavigate={navigateTo}
         currentTier={subscription.tierId}
         onPrimaryAction={handlePrimaryHeaderAction}
       />
@@ -322,11 +344,10 @@ export default function App() {
       <main className="flex-1">
         {activeView === "overview" && (
           <OverviewPage
+            abVariant={abVariant}
             currentTierId={subscription.tierId}
-            onNavigate={(view) => {
-              setActiveView(view);
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
+            onNavigate={navigateTo}
+            onMainCtaClick={handleMainCtaClick}
             onSelectPlan={openCheckoutModal}
             onLoadSampleAndOpenBuilder={handleLoadSampleAndOpenBuilder}
           />
@@ -399,6 +420,43 @@ export default function App() {
         onClose={() => setCheckoutModal((prev) => ({ ...prev, open: false }))}
         onConfirmSubscription={handleConfirmSubscription}
       />
+
+      {consentChoice === null && (
+        <div
+          role="region"
+          aria-label="Experiment consent notice"
+          className="no-print fixed bottom-0 inset-x-0 z-50 bg-white border-t border-[#E2E8F0] shadow-lg"
+        >
+          <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <p className="text-xs text-[#334155] leading-relaxed">
+              This class prototype records which version you saw and what you pressed, to test a
+              design. Nothing about your visit leaves this browser unless you agree.
+            </p>
+            <div className="flex items-center gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setConsent("granted");
+                  setConsentChoice("granted");
+                }}
+                className="px-4 py-2 text-xs font-medium text-[#111827] bg-white border border-[#CBD5E1] hover:border-[#111827] rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              >
+                Accept
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setConsent("denied");
+                  setConsentChoice("denied");
+                }}
+                className="px-4 py-2 text-xs font-medium text-[#111827] bg-white border border-[#CBD5E1] hover:border-[#111827] rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              >
+                Decline
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

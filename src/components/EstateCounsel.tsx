@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ArrowUp, RotateCcw, ShieldAlert } from "lucide-react";
 import { COUNSEL_SUGGESTED_TOPICS, MEMBERSHIP_PLANS } from "../data/plans";
+import { answerLocalEstateCounsel } from "../utils/localEstateEngine";
 import {
   BillingCycle,
   CounselMessage,
@@ -63,32 +64,22 @@ export const EstateCounsel: React.FC<EstateCounselProps> = ({
       timestamp: nowLabel,
     };
 
-    const nextHistory = [...messages, userMsg];
     onAddMessages([userMsg]);
     setInput("");
     setIsLoading(true);
 
     try {
       const hasProfileData = Boolean(willProfile.fullName.trim());
-      const res = await fetch("/api/estate/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: nextHistory.map((m) => ({ role: m.role, content: m.content })),
-          willContext: includeProfileContext && hasProfileData ? willProfile : null,
-          tier: subscription.tierId,
-        }),
-      });
-
-      const data = (await res.json()) as { reply?: string; error?: string };
-      if (!res.ok) {
-        throw new Error(data.error || "Unable to reach Estate Counsel right now.");
-      }
+      const reply = answerLocalEstateCounsel(
+        trimmed,
+        includeProfileContext && hasProfileData ? willProfile : null,
+        subscription.tierId
+      );
 
       const assistantMsg: CounselMessage = {
-        id: `a-${Date.now()}`,
+        id: `a-${Date.now() + 1}`,
         role: "assistant",
-        content: data.reply || "No response received.",
+        content: reply,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
 
@@ -96,7 +87,7 @@ export const EstateCounsel: React.FC<EstateCounselProps> = ({
       onIncrementQueryUsage();
     } catch (err) {
       setErrorMessage(
-        err instanceof Error ? err.message : "Failed to connect to Estate Counsel."
+        err instanceof Error ? err.message : "Failed to answer Estate Counsel question."
       );
     } finally {
       setIsLoading(false);

@@ -2,5 +2,5 @@
   "name": "LegacyDraft",
   "description": "AI-assisted Singapore will drafting, estate planning counsel, and wealth legacy vault with membership tiers and subscriptions.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }

@@ -12,6 +12,10 @@ import {
 } from "lucide-react";
 import { MEMBERSHIP_PLANS, SAMPLE_WILL_PROFILE } from "../data/plans";
 import {
+  generateLocalSingaporeWill,
+  reviewLocalSingaporeWill,
+} from "../utils/localEstateEngine";
+import {
   AuditFinding,
   AuditResult,
   BillingCycle,
@@ -149,25 +153,13 @@ export const WillBuilder: React.FC<WillBuilderProps> = ({
     setIsGenerating(true);
 
     try {
-      const res = await fetch("/api/will/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          profile,
-          tier: subscription.tierId,
-        }),
-      });
-      const data = (await res.json()) as Partial<GeneratedWillResult> & { error?: string };
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to draft Will.");
-      }
-
+      const data = generateLocalSingaporeWill(profile, subscription.tierId);
       const nextVersion = (generatedWill?.version ?? 0) + 1;
       onSetGeneratedWill({
-        documentTitle: data.documentTitle || `LAST WILL AND TESTAMENT OF ${profile.fullName.toUpperCase()}`,
-        formalWillText: data.formalWillText || "",
-        summaryClauses: data.summaryClauses || [],
-        complianceNotices: data.complianceNotices || [],
+        documentTitle: data.documentTitle,
+        formalWillText: data.formalWillText,
+        summaryClauses: data.summaryClauses,
+        complianceNotices: data.complianceNotices,
         generatedAt: new Date().toLocaleString("en-SG", {
           day: "2-digit",
           month: "short",
@@ -203,26 +195,10 @@ export const WillBuilder: React.FC<WillBuilderProps> = ({
     setRightTab("audit");
 
     try {
-      const res = await fetch("/api/will/review", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          willText: generatedWill.formalWillText,
-          profile,
-        }),
-      });
-      const data = (await res.json()) as {
-        overallAssessment?: string;
-        findings?: AuditFinding[];
-        error?: string;
-      };
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to audit draft.");
-      }
-
+      const data = reviewLocalSingaporeWill(generatedWill.formalWillText, profile);
       onSetAuditResult({
-        overallAssessment: data.overallAssessment || "",
-        findings: data.findings || [],
+        overallAssessment: data.overallAssessment,
+        findings: data.findings,
         auditedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       });
     } catch (err) {

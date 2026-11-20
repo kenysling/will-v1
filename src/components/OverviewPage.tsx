@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { ArrowRight, Check, Scale } from "lucide-react";
 import { MEMBERSHIP_PLANS, PLAN_ORDER } from "../data/plans";
+import { type Variant } from "../pt";
 import { AppView, BillingCycle, MembershipTierId } from "../types/estate";
 
 interface OverviewPageProps {
+  abVariant: Variant;
   currentTierId: MembershipTierId;
   onNavigate: (view: AppView) => void;
+  onMainCtaClick: () => void;
   onSelectPlan: (tierId: MembershipTierId, cycle: BillingCycle) => void;
   onLoadSampleAndOpenBuilder: () => void;
 }
@@ -31,8 +34,10 @@ const CORE_PLAN_POINTS: Record<MembershipTierId, string[]> = {
 };
 
 export const OverviewPage: React.FC<OverviewPageProps> = ({
+  abVariant,
   currentTierId,
   onNavigate,
+  onMainCtaClick,
   onSelectPlan,
   onLoadSampleAndOpenBuilder,
 }) => {
@@ -65,7 +70,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
             <div className="flex flex-wrap items-center gap-5 mt-8">
               <button
                 type="button"
-                onClick={() => onNavigate("builder")}
+                onClick={onMainCtaClick}
                 className="animate-cta-flash inline-flex items-center gap-2 px-6 py-3.5 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-md shadow-md shadow-[#1D4ED8]/25 transition-colors duration-150 whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
               >
                 Build your will NOW for FREE!
@@ -143,6 +148,38 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           </button>
         </div>
       </section>
+
+      {/* Element under test (Version B only): YouTube video explaining the importance of How to Make a Will */}
+      {abVariant === "B" && (
+        <section className="max-w-[1400px] mx-auto px-6 lg:px-10 pb-14">
+          <div className="bg-white border border-[#E2E8F0] rounded-lg p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-5 space-y-3">
+              <p className="text-xs font-medium text-[#0F4C3A]">
+                Why Making a Will Matters in Singapore
+              </p>
+              <h2 className="font-display text-2xl font-semibold text-[#111827] tracking-tight">
+                How to make a valid will — and why every adult needs one.
+              </h2>
+              <p className="text-sm text-[#475569] leading-relaxed">
+                Watch this quick guide on writing a valid Singapore will, protecting your family
+                from intestacy delays, and avoiding common witnessing mistakes before you start.
+              </p>
+            </div>
+            <div className="lg:col-span-7">
+              <div className="aspect-video w-full rounded-md overflow-hidden border border-[#E2E8F0] bg-[#111827]">
+                <iframe
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/Y1g7mebf4tE?rel=0"
+                  title="How to Make a Valid Will in Singapore"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 2. Simple Membership Tiers */}
       <section className="max-w-[1400px] mx-auto px-6 lg:px-10 py-14 border-t border-[#E2E8F0]">
