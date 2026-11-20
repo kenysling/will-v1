@@ -26,6 +26,29 @@
   line-height: 1.75;
 }
 
+@keyframes cta-flash {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.78;
+    transform: scale(1.02);
+    filter: brightness(1.18);
+  }
+}
+
+.animate-cta-flash {
+  animation: cta-flash 1.15s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-cta-flash {
+    animation: none;
+  }
+}
+
 @media print {
   body {
     background: #ffffff !important;
