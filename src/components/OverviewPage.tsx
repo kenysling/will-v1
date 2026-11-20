@@ -307,6 +307,41 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           </div>
         </div>
 
+        {/* Quick 10-Second Plan Matcher Bar */}
+        <div className="mb-8 p-5 bg-white border border-[#E2E8F0] rounded-lg flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold text-[#111827]">
+              Not sure which membership fits? Pick your situation to start a 14-day free trial:
+            </p>
+            <p className="text-xs text-[#475569] mt-0.5">
+              Instant activation with S$0 due today — no card details required up front.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => onSelectPlan("essential", billingCycle)}
+              className="px-3.5 py-2 text-xs font-medium text-[#111827] bg-[#F8F9FA] border border-[#CBD5E1] hover:border-[#0F4C3A] hover:text-[#0F4C3A] rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            >
+              Just Myself → Essential
+            </button>
+            <button
+              type="button"
+              onClick={() => onSelectPlan("family_guard", billingCycle)}
+              className="px-3.5 py-2 text-xs font-medium text-white bg-[#0F4C3A] hover:bg-[#0A3629] rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            >
+              Spouse &amp; Kids → Family Guard Trial
+            </button>
+            <button
+              type="button"
+              onClick={() => onSelectPlan("private_wealth", billingCycle)}
+              className="px-3.5 py-2 text-xs font-medium text-[#111827] bg-[#F8F9FA] border border-[#CBD5E1] hover:border-[#0F4C3A] hover:text-[#0F4C3A] rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            >
+              Business / Overseas → Private Wealth Trial
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {PLAN_ORDER.map((tierId) => {
             const plan = MEMBERSHIP_PLANS[tierId];

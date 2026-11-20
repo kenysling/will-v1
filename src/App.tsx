@@ -139,17 +139,21 @@ export default function App() {
     paymentMethodLabel,
     finalAmountSgd,
     promoCode,
+    isTrial,
   }: {
     tierId: MembershipTierId;
     billingCycle: BillingCycle;
     paymentMethodLabel: string;
     finalAmountSgd: number;
     promoCode?: string;
+    isTrial?: boolean;
   }) => {
     const plan = MEMBERSHIP_PLANS[tierId];
     const now = new Date();
     const renewal = new Date(now);
-    if (billingCycle === "annual") {
+    if (isTrial) {
+      renewal.setDate(renewal.getDate() + 14);
+    } else if (billingCycle === "annual") {
       renewal.setFullYear(renewal.getFullYear() + 1);
     } else {
       renewal.setMonth(renewal.getMonth() + 1);
@@ -184,7 +188,13 @@ export default function App() {
       id: `INV-${now.getFullYear()}-${String(Math.floor(1000 + Math.random() * 9000))}`,
       date: formattedToday,
       description: `${plan.name} Membership (${
-        tierId === "essential" ? "Complimentary" : billingCycle === "annual" ? "Annual" : "Monthly"
+        tierId === "essential"
+          ? "Complimentary"
+          : isTrial
+          ? "14-Day Free Trial"
+          : billingCycle === "annual"
+          ? "Annual"
+          : "Monthly"
       })${promoCode ? ` · Promo ${promoCode}` : ""}`,
       billingCycle,
       amountSgd: finalAmountSgd,
@@ -194,7 +204,11 @@ export default function App() {
 
     setInvoices((prev) => [newInvoice, ...prev]);
     setCheckoutModal((prev) => ({ ...prev, open: false }));
-    setToastMessage(`${plan.name} membership is now active.`);
+    setToastMessage(
+      isTrial
+        ? `14-day free trial of ${plan.name} activated (S$0 today).`
+        : `${plan.name} membership is now active.`
+    );
   };
 
   const handleBookSolicitorReview = () => {
